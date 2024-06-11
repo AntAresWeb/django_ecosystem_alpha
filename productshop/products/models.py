@@ -85,11 +85,23 @@ class ShoppingCart(models.Model):
         on_delete=models.CASCADE,
         verbose_name='Владелец корзины'
     )
-    products = models.ManyToManyField(
+    product = models.ForeignKey(
         Product,
         related_name='shoppingcarts',
+        on_delete=models.CASCADE,
         verbose_name='Список продуктов'
     )
+    quantity = models.FloatField(
+        validators=(
+            MinValueValidator(const.MIN_PRICE),
+            MaxValueValidator(const.MAX_PRICE),
+        ),
+        verbose_name='Цена продукта'
+    )
+
+    class Meta:
+        verbose_name = 'Корзина продуктов'
+        verbose_name_plural = 'Корзины продуктов'
 
     def __str__(self):
         return f'Корзина пользователя: {self.owner}'
@@ -112,7 +124,7 @@ class Image(models.Model):
         constraints = (
             models.UniqueConstraint(
                 name='product_image',
-                fields=('file', 'player',),
+                fields=('file', 'product',),
             ),
         )
 

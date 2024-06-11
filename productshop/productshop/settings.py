@@ -1,16 +1,20 @@
+from datetime import timedelta
 from pathlib import Path
+
+from decouple import config
+from django.core.management.utils import get_random_secret_key
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'django-insecure-migl@1#fsy-+v@0bm08j&94-ii^y-s&&w!^h&6vsox83n6)^d^'
+SECRET_KEY = config('SECRET_KEY', get_random_secret_key())
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+CSRF_TRUSTED_ORIGINS = ['http://localhost', 'http://127.0.0.1']
 
-ALLOWED_HOSTS = []
+DEBUG = config('DEBUG', True)
 
+ALLOWED_HOSTS = config('ALLOWED_HOSTS').split(' ')
 
-# Application definition
+AUTH_USER_MODEL = 'users.User'
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -19,6 +23,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+    'rest_framework_simplejwt',
+    'productshop',
+    'users',
+    'products',
+    'api',
 ]
 
 MIDDLEWARE = [
@@ -51,20 +61,12 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'productshop.wsgi.application'
 
-
-# Database
-# https://docs.djangoproject.com/en/3.2/ref/settings/#databases
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-
-
-# Password validation
-# https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -82,12 +84,9 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
-# Internationalization
-# https://docs.djangoproject.com/en/3.2/topics/i18n/
+LANGUAGE_CODE = 'ru'
 
-LANGUAGE_CODE = 'en-us'
-
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Europe/Moscow'
 
 USE_I18N = True
 
@@ -95,13 +94,32 @@ USE_L10N = True
 
 USE_TZ = True
 
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/3.2/howto/static-files/
-
 STATIC_URL = '/static/'
-
-# Default primary key field type
-# https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ],
+    'DEFAULT_FILTER_BACKENDS': [
+        'django_filters.rest_framework.DjangoFilterBackend',
+    ],
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 10,
+}
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=500),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'SIGNING_KEY': SECRET_KEY,
+    'AUTH_HEADER_TYPES': ('Token', 'Bearer',),
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': True,
+    'TOKEN_USER_CLASS': 'rest_framework_simplejwt.models.TokenUser',
+}

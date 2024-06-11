@@ -1,6 +1,5 @@
 from django.contrib import admin
-from django.forms import ValidationError
-from django.forms.models import BaseInlineFormSet
+from django.utils.html import format_html
 
 from products.models import (
     Category,
@@ -12,49 +11,45 @@ from products.models import (
 
 
 class CategoryAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'slug',)
+    def change_button(self, obj):
+        return format_html('<a class="btn" href="/admin/products/category/{}'
+                           '/change/">Изменить</a>', obj.id)
+
+    def delete_button(self, obj):
+        return format_html('<a class="btn" href="/admin/products/category/{}'
+                           '/delete/">Удалить</a>', obj.id)
+
+    list_display = ('id', 'name', 'slug', 'change_button', 'delete_button',)
 
 
 class SubcategoryAdmin(admin.ModelAdmin):
-    list_display = ('id', 'category', 'name', 'slug',)
+    def change_button(self, obj):
+        return format_html('<a class="btn" href="/admin/products'
+                           '/subcategory/{}/change/">Изменить</a>', obj.id)
+
+    def delete_button(self, obj):
+        return format_html('<a class="btn" href="/admin/products'
+                           '/subcategory/{}/delete/">Удалить</a>', obj.id)
+
+    list_display = ('id', 'category', 'name', 'slug',
+                    'change_button', 'delete_button',)
 
 
-class IngredientInlineFormSet(BaseInlineFormSet):
-    def clean(self):
-        super(IngredientInlineFormSet, self).clean()
-        total = len(self.forms)
-        for form in self.forms:
-            content = form.cleaned_data
-            if content.get('ingredient') is None or content.get('DELETE'):
-                total -= 1
-        if total < 1:
-            raise ValidationError(
-                'В рецепте должен использоваться хотя бы один ингредиент!')
+class ProductAdmin(admin.ModelAdmin):
+    def change_button(self, obj):
+        return format_html('<a class="btn" href="/admin/products'
+                           '/product/{}/change/">Изменить</a>', obj.id)
+
+    def delete_button(self, obj):
+        return format_html('<a class="btn" href="/admin/products'
+                           '/product/{}/delete/">Удалить</a>', obj.id)
+
+    list_display = ('id', 'subcategory', 'name', 'slug', 'price',
+                    'change_button', 'delete_button',)
 
 
-class RecipeIngrdientsInline(admin.TabularInline):
-    model = Content
-    formset = IngredientInlineFormSet
-    extra = 1
-
-
-class RecipeAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'author', 'name', 'text',
-                    'cooking_time', 'image', 'ingredients_list')
-    inlines = (RecipeIngrdientsInline,)
-    filter_horizontal = ('tags',)
-
-    def ingredients_list(self, obj):
-        return ','.join([ingr.name for ingr in obj.ingredients.all()])
-    ingredients_list.short_description = 'Ингредиенты'
-
-
-class FavoriteAdmin(admin.ModelAdmin):
-    list_display = ('id', 'user', 'recipe')
-
-
-class ShoppingcartAdmin(admin.ModelAdmin):
-    list_display = ('id', 'owner', 'recipe')
+class ShoppingCartAdmin(admin.ModelAdmin):
+    list_display = ('id', 'owner', 'product', 'quantity',)
 
 
 class ImageAdmin(admin.ModelAdmin):
@@ -63,7 +58,6 @@ class ImageAdmin(admin.ModelAdmin):
 
 admin.site.register(Category, CategoryAdmin)
 admin.site.register(Subcategory, SubcategoryAdmin)
-admin.site.register(Ingredient, IngredientAdmin)
-admin.site.register(Recipe, RecipeAdmin)
-admin.site.register(Shoppingcart, ShoppingcartAdmin)
+admin.site.register(Product, ProductAdmin)
+admin.site.register(ShoppingCart, ShoppingCartAdmin)
 admin.site.register(Image, ImageAdmin)

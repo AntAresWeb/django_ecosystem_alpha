@@ -1,4 +1,6 @@
-django.contrib.auth.models import AbstractUser, BaseUserManager
+import jwt
+
+from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.core.validators import RegexValidator
 from django.db import models
 
@@ -6,7 +8,6 @@ import core.constants as const
 
 
 class UserManager(BaseUserManager):
-    """ Создает и возвращает пользователя с емэйлом, паролем и именем. """
     def create_user(self, username, email, password=None):
         if username is None:
             raise TypeError('Имя пользователя обязательно.')
@@ -21,7 +22,6 @@ class UserManager(BaseUserManager):
         return user
 
     def create_superuser(self, username, email, password):
-        """ Создает и возввращет пользователя с привилегиями суперадмина. """
         if password is None:
             raise TypeError('Нужно обязательно указать пароль.')
 
@@ -34,9 +34,8 @@ class UserManager(BaseUserManager):
 
 
 class User(AbstractUser):
-    """ Модель пользователя. """
     email = models.EmailField(
-        max_length=const.FIELD_LENGTH_254,
+        max_length=const.LENGTH_STRING_254,
         unique=True,
         verbose_name='E-mail пользователя',
         error_messages={
@@ -44,7 +43,7 @@ class User(AbstractUser):
         },
     )
     username = models.CharField(
-        max_length=const.FIELD_LENGTH_150,
+        max_length=const.LENGTH_STRING_100,
         unique=True,
         verbose_name='Логин пользователя',
         error_messages={
@@ -57,15 +56,6 @@ class User(AbstractUser):
             ),
         ]
     )
-    first_name = models.CharField(
-        max_length=const.FIELD_LENGTH_150,
-        verbose_name='Имя пользователя',
-    )
-    last_name = models.CharField(
-        max_length=const.FIELD_LENGTH_150,
-        verbose_name='Фамилия пользователя',
-    )
-
     objects = UserManager()
 
     def __str__(self):
