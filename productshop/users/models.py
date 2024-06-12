@@ -1,10 +1,7 @@
-import jwt
-
+import core.constants as const
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.core.validators import RegexValidator
 from django.db import models
-
-import core.constants as const
 
 
 class UserManager(BaseUserManager):

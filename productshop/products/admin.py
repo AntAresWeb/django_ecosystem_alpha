@@ -1,13 +1,6 @@
 from django.contrib import admin
 from django.utils.html import format_html
-
-from products.models import (
-    Category,
-    Subcategory,
-    Product,
-    ShoppingCart,
-    Image,
-)
+from products.models import Category, Image, Product, ShoppingCart, Subcategory
 
 
 class CategoryAdmin(admin.ModelAdmin):

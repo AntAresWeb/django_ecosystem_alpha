@@ -1,10 +1,9 @@
+import core.constants as const
 from django.contrib.auth import get_user_model
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models.signals import post_delete
 from django.dispatch.dispatcher import receiver
-
-import core.constants as const
 
 User = get_user_model()
 
@@ -109,7 +108,7 @@ class ShoppingCart(models.Model):
 
 class Image(models.Model):
     file = models.FileField(
-        upload_to='images',
+        upload_to='images/',
         unique=True,
     )
     product = models.ForeignKey(
