@@ -2,21 +2,21 @@ from django.urls import include, path
 from rest_framework import routers
 from rest_framework_simplejwt.views import (TokenObtainPairView,
                                             TokenRefreshView)
-
-# from api.views import (IngredientViewSet, RecipeViewSet, TagViewSet,
-#                        TokenLoginView, TokenLogoutView, UserViewSet)
-
-from api.views import CategorySubcategoryListViewSet
+from api.views import (
+    CategorySubcategoryListViewSet,
+    ProductListViewSet,
+    ShoppingCartViewSet
+)
 
 
 router = routers.DefaultRouter()
 
 router.register(r'categories',
                 CategorySubcategoryListViewSet, basename='category')
-# router.register(r'recipes',
-#                 RecipeViewSet, basename='recipe')
-# router.register(r'tags',
-#                 TagViewSet, basename='tag')
+router.register(r'products',
+                ProductListViewSet, basename='product')
+router.register(r'shoppingcarts',
+                ShoppingCartViewSet, basename='shoppingcart')
 # router.register(r'users',
 #                 UserViewSet, basename='user')
 

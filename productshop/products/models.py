@@ -84,9 +84,25 @@ class ShoppingCart(models.Model):
         on_delete=models.CASCADE,
         verbose_name='Владелец корзины'
     )
+
+    class Meta:
+        verbose_name = 'Корзина продуктов'
+        verbose_name_plural = 'Корзины продуктов'
+
+    def __str__(self):
+        return f'Корзина пользователя: {self.owner}'
+
+
+class ProductSet(models.Model):
+    shoppingcart = models.ForeignKey(
+        ShoppingCart,
+        related_name='productsets',
+        on_delete=models.CASCADE,
+        verbose_name='Корзина'
+    )
     product = models.ForeignKey(
         Product,
-        related_name='shoppingcarts',
+        related_name='productsets',
         on_delete=models.CASCADE,
         verbose_name='Список продуктов'
     )
@@ -99,11 +115,11 @@ class ShoppingCart(models.Model):
     )
 
     class Meta:
-        verbose_name = 'Корзина продуктов'
-        verbose_name_plural = 'Корзины продуктов'
+        verbose_name = 'Продукт в корзине'
+        verbose_name_plural = 'Продукты в корзине'
 
     def __str__(self):
-        return f'Корзина пользователя: {self.owner}'
+        return f'Продукт из корзины: {self.shoppingcart}'
 
 
 class Image(models.Model):

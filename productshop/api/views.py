@@ -12,7 +12,10 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import (BlacklistedToken,
                                              OutstandingToken, RefreshToken)
 from .serializers import (
-    CategoryListSerializer
+    CategoryListSerializer,
+    ProductSerializer,
+    ShoppingCartReadSerializer,
+    ShoppingCartWriteSerializer
 )
 
 
@@ -22,29 +25,57 @@ class CategoryResultsSetPagination(PageNumberPagination):
     max_page_size = 1000
 
 
-class CategorySubcategoryListViewSet(mixins.ListModelMixin,
-                                     viewsets.GenericViewSet):
+class CategorySubcategoryListViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategoryListSerializer
     permission_classes = (AllowAny,)
     pagination_class = CategoryResultsSetPagination
 
-    # def get_queryset(self):
-    #     queryset = Category.objects.all()
-    #     search_str = self.request.query_params.get('name')
-    #     if search_str is not None:
-    #         queryset = queryset.filter(name__startswith=search_str)
-    #     return queryset
+
+class ProductResultsSetPagination(PageNumberPagination):
+    page_size = 5
+    page_size_query_param = 'page_size'
+    max_page_size = 1000
 
 
-# class TagViewSet(mixins.ListModelMixin,
-#                  mixins.RetrieveModelMixin,
-#                  viewsets.GenericViewSet):
-#     queryset = Tag.objects.all()
-#     serializer_class = TagSerialiser
-#     permission_classes = (AllowAny,)
-#     pagination_class = None
+class ProductListViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+    permission_classes = (AllowAny,)
+    pagination_class = ProductResultsSetPagination
 
+
+class ShoppingCartViewSet(viewsets.ModelViewSet):
+    queryset = ShoppingCart.objects.all()
+    serializer_class = ShoppingCartReadSerializer
+    permission_classes = (IsAuthenticated,)
+    pagination_class = None
+
+    def get_queryset(self):
+        owner = self.request.user
+        return ShoppingCart.objects.filter(owner=owner)
+
+    def get_serializer_class(self):
+        print(f'>>>>>>> {self.action}')
+        if self.action in ('create', 'partial_update', 'destroy',):
+            return ShoppingCartWriteSerializer
+        return ShoppingCartReadSerializer
+
+    @action(methods=['post'], detail=True)
+    def clean(self, request, pk=None):
+        print(f'>>>>>>>>> {request} {pk}')
+        shoppingcart = get_object_or_404(ShoppingCart, pk=pk)
+        serialiser = ShoppingCartReadSerializer(
+                    instance=shoppingcart, many=False)
+        return Response(serialiser.data, status=status.HTTP_200_OK)
+
+    @action(methods=['post'], detail=True)
+    def product(self, request, pk=None):
+        print(f'>>>>>>>>> {request} {pk}')
+        shoppingcart = get_object_or_404(ShoppingCart, pk=pk)
+        serialiser = ShoppingCartReadSerializer(
+                    instance=shoppingcart, many=False)
+        return Response(serialiser.data, status=status.HTTP_200_OK)
 
 # class RecipeViewSet(viewsets.ModelViewSet):
 

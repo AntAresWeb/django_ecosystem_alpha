@@ -8,6 +8,7 @@ from products.models import (
     Category,
     Image,
     Product,
+    ProductSet,
     ShoppingCart,
     Subcategory,
     User
@@ -43,6 +44,7 @@ class Command(BaseCommand):
         Category.objects.all().delete()
         Image.objects.all().delete()
         Product.objects.all().delete()
+        ProductSet.objects.all().delete()
         ShoppingCart.objects.all().delete()
         Subcategory.objects.all().delete()
         User.objects.filter(username__icontains='User').delete()
@@ -84,21 +86,24 @@ class Command(BaseCommand):
         self.stdout.write('Заполняtтся таблица корзин')
         users = User.objects.filter(username__icontains='User')
         for owner in users:
-            for i in range(randint(3, 10)):
-                quantity = randint(1, 100)
-                product = self.get_random_object(Product)
-                try:
-                    shoppingcart = ShoppingCart.objects.get(
-                        owner=owner, product=product
-                    )
-                    shoppingcart.quantity += quantity
-                except ShoppingCart.DoesNotExist:
-                    shoppingcart = ShoppingCart(
-                        owner=owner,
-                        product=product,
-                        quantity=quantity
-                    )
+            for i in range(randint(1, 3)):
+                shoppingcart = ShoppingCart(owner=owner)
                 shoppingcart.save()
+                for _ in range(randint(3, 5)):
+                    quantity = randint(1, 100)
+                    product = self.get_random_object(Product)
+                    try:
+                        productset = ProductSet.objects.get(
+                            shoppingcart=shoppingcart, product=product
+                        )
+                        productset.quantity += quantity
+                    except ProductSet.DoesNotExist:
+                        productset = ProductSet(
+                            shoppingcart=shoppingcart,
+                            product=product,
+                            quantity=quantity
+                        )
+                    productset.save()
 
         self.stdout.write('Заполняtтся таблица изображений')
         products = Product.objects.all()

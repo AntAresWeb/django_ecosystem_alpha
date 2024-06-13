@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.utils.html import format_html
-from products.models import Category, Image, Product, ShoppingCart, Subcategory
+from products.models import Category, Image, Product, Subcategory
 
 
 class CategoryAdmin(admin.ModelAdmin):
@@ -41,10 +41,6 @@ class ProductAdmin(admin.ModelAdmin):
                     'change_button', 'delete_button',)
 
 
-class ShoppingCartAdmin(admin.ModelAdmin):
-    list_display = ('id', 'owner', 'product', 'quantity',)
-
-
 class ImageAdmin(admin.ModelAdmin):
     list_display = ('id', 'file', 'product',)
 
@@ -52,5 +48,4 @@ class ImageAdmin(admin.ModelAdmin):
 admin.site.register(Category, CategoryAdmin)
 admin.site.register(Subcategory, SubcategoryAdmin)
 admin.site.register(Product, ProductAdmin)
-admin.site.register(ShoppingCart, ShoppingCartAdmin)
 admin.site.register(Image, ImageAdmin)
