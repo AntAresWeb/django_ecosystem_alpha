@@ -3,7 +3,6 @@ import csv
 from django.db.models import Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
-from products.models import Category, Image, Product, ShoppingCart, Subcategory
 from rest_framework import mixins, status, views, viewsets
 from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
@@ -15,8 +14,9 @@ from .serializers import (
     CategoryListSerializer,
     ProductSerializer,
     ShoppingCartReadSerializer,
-    ShoppingCartWriteSerializer
+    ProductSetWriteSerializer
 )
+from products.models import Category, Product, ProductSet, ShoppingCart
 
 
 class CategoryResultsSetPagination(PageNumberPagination):
@@ -55,24 +55,25 @@ class ShoppingCartViewSet(viewsets.ModelViewSet):
         owner = self.request.user
         return ShoppingCart.objects.filter(owner=owner)
 
-    def get_serializer_class(self):
-        print(f'>>>>>>> {self.action}')
-        if self.action in ('create', 'partial_update', 'destroy',):
-            return ShoppingCartWriteSerializer
-        return ShoppingCartReadSerializer
-
     @action(methods=['post'], detail=True)
     def clean(self, request, pk=None):
-        print(f'>>>>>>>>> {request} {pk}')
         shoppingcart = get_object_or_404(ShoppingCart, pk=pk)
+        # TODO Написать очистку корзины
         serialiser = ShoppingCartReadSerializer(
                     instance=shoppingcart, many=False)
         return Response(serialiser.data, status=status.HTTP_200_OK)
 
-    @action(methods=['post'], detail=True)
+    @action(methods=['post', 'delete', 'patch'], detail=True)
     def product(self, request, pk=None):
-        print(f'>>>>>>>>> {request} {pk}')
         shoppingcart = get_object_or_404(ShoppingCart, pk=pk)
+        context = {'method': request.method}
+        serializer = ProductSetWriteSerializer(
+            data=request.data, context=context
+        )
+        if serializer.is_valid(raise_exception=True):
+            print(f'>>>>>>>>> validated_data {serializer.validated_data}')
+            product = serializer.validated_data['product']
+            quantity = serializer.validated_data['quantity']
         serialiser = ShoppingCartReadSerializer(
                     instance=shoppingcart, many=False)
         return Response(serialiser.data, status=status.HTTP_200_OK)
