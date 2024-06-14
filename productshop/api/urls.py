@@ -1,13 +1,9 @@
+from api.views import (CategorySubcategoryListViewSet, ProductListViewSet,
+                       ShoppingCartViewSet)
 from django.urls import include, path
 from rest_framework import routers
 from rest_framework_simplejwt.views import (TokenObtainPairView,
                                             TokenRefreshView)
-from api.views import (
-    CategorySubcategoryListViewSet,
-    ProductListViewSet,
-    ShoppingCartViewSet
-)
-
 
 router = routers.DefaultRouter()
 
@@ -17,8 +13,6 @@ router.register(r'products',
                 ProductListViewSet, basename='product')
 router.register(r'shoppingcarts',
                 ShoppingCartViewSet, basename='shoppingcart')
-# router.register(r'users',
-#                 UserViewSet, basename='user')
 
 urlpatterns = (
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),

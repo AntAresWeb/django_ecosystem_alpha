@@ -1,13 +1,7 @@
-import re
-
-import core.constants as const
-from django.db.models import Count, F, Sum
-from drf_extra_fields.fields import Base64ImageField
+from django.db.models import F, Sum
+from products.models import (Category, Image, Product, ProductSet,
+                             ShoppingCart, Subcategory)
 from rest_framework import serializers
-from rest_framework.validators import UniqueTogetherValidator
-from products.models import (
-    Category, Image, Product, ProductSet, ShoppingCart, Subcategory
-)
 
 
 class SubcategoryListSerializer(serializers.ModelSerializer):
@@ -74,7 +68,7 @@ class ShoppingCartReadSerializer(serializers.ModelSerializer):
             total=Sum(F('quantity')))['total']
 
 
-class ProductSetWriteSerializer(serializers.ModelSerializer):
+class ProductSetShortSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductSet
         fields = ('product', 'quantity',)

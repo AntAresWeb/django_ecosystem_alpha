@@ -1,18 +1,12 @@
 from io import BytesIO
 from random import randint
-from PIL import Image as PilImage, ImageDraw
+
 from django.core.files import File
 from django.core.management.base import BaseCommand
-
-from products.models import (
-    Category,
-    Image,
-    Product,
-    ProductSet,
-    ShoppingCart,
-    Subcategory,
-    User
-)
+from PIL import Image as PilImage
+from PIL import ImageDraw
+from products.models import (Category, Image, Product, ProductSet,
+                             ShoppingCart, Subcategory, User)
 
 
 def generate_image():
